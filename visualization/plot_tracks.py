@@ -34,10 +34,10 @@ def plot_events_vs_time(df):
     plt.show()
 
 
-def plot_latitude_vs_time(df):
+def plot_latitude_vs_time(df, hue_col="object_uid"):
     plt.figure(figsize=(10, 5))
-    sns.scatterplot(x='time', y='lat', hue='object_uid', data=df, palette='tab10', s=20, legend=False)
-    plt.title("Latitude vs Time")
+    sns.scatterplot(x='time', y='lat', hue=hue_col, data=df, palette='tab10', s=20, legend=False)
+    plt.title(f"Latitude vs Time (colored by {hue_col})")
     plt.xlabel("Time")
     plt.ylabel("Latitude")
     plt.xticks(rotation=45)
@@ -45,10 +45,10 @@ def plot_latitude_vs_time(df):
     plt.show()
 
 
-def plot_longitude_vs_time(df):
+def plot_longitude_vs_time(df, hue_col="object_uid"):
     plt.figure(figsize=(10, 5))
-    sns.scatterplot(x='time', y='lon', hue='object_uid', data=df, palette='tab10', s=20, legend=False)
-    plt.title("Longitude vs Time")
+    sns.scatterplot(x='time', y='lon', hue=hue_col, data=df, palette='tab10', s=20, legend=False)
+    plt.title("Longitude vs Time (colored by {hue_col})")
     plt.xlabel("Time")
     plt.ylabel("Longitude")
     plt.xticks(rotation=45)
