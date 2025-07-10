@@ -2,6 +2,8 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from shapely import wkt
+from geopy.distance import geodesic
+import matplotlib.pyplot as plt
 
 
 def preprocess_df(df):
@@ -37,7 +39,7 @@ def plot_events_vs_time(df):
 def plot_latitude_vs_time(df, hue_col="object_uid"):
     plt.figure(figsize=(10, 5))
     sns.scatterplot(x='time', y='lat', hue=hue_col, data=df, palette='tab10', s=20, legend=False)
-    plt.title(f"Latitude vs Time (colored by {hue_col})")
+    plt.title(f"Filtered Tracks - Latitude vs Time")
     plt.xlabel("Time")
     plt.ylabel("Latitude")
     plt.xticks(rotation=45)
@@ -48,9 +50,42 @@ def plot_latitude_vs_time(df, hue_col="object_uid"):
 def plot_longitude_vs_time(df, hue_col="object_uid"):
     plt.figure(figsize=(10, 5))
     sns.scatterplot(x='time', y='lon', hue=hue_col, data=df, palette='tab10', s=20, legend=False)
-    plt.title("Longitude vs Time (colored by {hue_col})")
+    plt.title("Filtered Tracks - Longitude vs Time")
     plt.xlabel("Time")
     plt.ylabel("Longitude")
     plt.xticks(rotation=45)
     plt.tight_layout()
     plt.show()
+
+def plot_kalman_velocity_components_vs_time(active_tracks):
+    """
+    Plots Kalman-estimated velocity components (vx, vy) vs time for each track.
+    vx ~ longitude velocity, vy ~ latitude velocity
+    """
+    import pandas as pd
+    import matplotlib.pyplot as plt
+
+    records = []
+    for track in active_tracks:
+        records.extend(track.get_velocity_trace())
+
+    df = pd.DataFrame(records)
+    if df.empty:
+        print("No velocity component data to plot.")
+        return
+
+    fig, axes = plt.subplots(2, 1, figsize=(12, 8), sharex=True)
+
+    for track_id, group in df.groupby("track_id"):
+        axes[0].plot(group["time"], group["vx"], label=f"Track {track_id[:6]}")
+        axes[1].plot(group["time"], group["vy"], label=f"Track {track_id[:6]}")
+
+    axes[0].set_ylabel("vx (m/s) ~ Longitude velocity")
+    axes[1].set_ylabel("vy (m/s) ~ Latitude velocity")
+    axes[1].set_xlabel("Time")
+
+    axes[0].set_title("Kalman-Estimated Velocity Components vs Time")
+    axes[0].legend(bbox_to_anchor=(1.05, 1), loc='upper left', fontsize='small')
+    plt.tight_layout()
+    plt.show()
+
