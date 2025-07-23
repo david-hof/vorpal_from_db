@@ -36,23 +36,40 @@ def plot_events_vs_time(df):
     plt.show()
 
 
-def plot_latitude_vs_time(df, hue_col="object_uid"):
+def plot_longitude_vs_time(df, hue_col="object_uid", kf_df=None):
     plt.figure(figsize=(10, 5))
-    sns.scatterplot(x='time', y='lat', hue=hue_col, data=df, palette='tab10', s=20, legend=False)
-    plt.title(f"Filtered Tracks - Latitude vs Time")
+
+    sns.scatterplot(x='time', y='lon', hue=hue_col, data=df, palette='tab10', s=20, legend=False)
+
+    if kf_df is not None:
+        sns.scatterplot(
+            x="time", y="lon", data=kf_df,
+            marker='X', color='black', s=50, label="Kalman Estimate", alpha=0.7
+        )
+
+    plt.title("Filtered Tracks - Longitude vs Time (with Kalman Estimates)")
     plt.xlabel("Time")
-    plt.ylabel("Latitude")
+    plt.ylabel("Longitude")
     plt.xticks(rotation=45)
     plt.tight_layout()
     plt.show()
 
-
-def plot_longitude_vs_time(df, hue_col="object_uid"):
+def plot_latitude_vs_time(df, hue_col="object_uid", kf_df=None):
     plt.figure(figsize=(10, 5))
-    sns.scatterplot(x='time', y='lon', hue=hue_col, data=df, palette='tab10', s=20, legend=False)
-    plt.title("Filtered Tracks - Longitude vs Time")
+
+    # Raw or associated data
+    sns.scatterplot(x='time', y='lat', hue=hue_col, data=df, palette='tab10', s=20, legend=False)
+
+    # Kalman overlay
+    if kf_df is not None:
+        sns.scatterplot(
+            x="time", y="lat", data=kf_df,
+            marker='X', color='black', s=50, label="Kalman Estimate", alpha=0.7
+        )
+
+    plt.title("Filtered Tracks - Latitude vs Time (with Kalman Estimates)")
     plt.xlabel("Time")
-    plt.ylabel("Longitude")
+    plt.ylabel("Latitude")
     plt.xticks(rotation=45)
     plt.tight_layout()
     plt.show()
