@@ -4,6 +4,7 @@ import uuid
 from fusion.kalman_filter import KalmanFilterCV2D
 import numpy as np
 from pyproj import Proj, Transformer
+import pandas as pd
 
 
 # Track object definition
@@ -13,6 +14,7 @@ class Track:
         self.measurements = []
         self.kf = KalmanFilterCV2D(init_pos)
         self.last_update_time = init_time
+        self.state_history = []
         self.velocity_history = []  # ✅ record velocity over time
 
     def add(self, measurement):
@@ -21,6 +23,13 @@ class Track:
         self.kf.update(measurement["position_m"])
         self.measurements.append(measurement)
         self.last_update_time = measurement["time"]
+
+        self.state_history.append({
+            "time": measurement["time"],
+            "x": self.kf.get_position()[0],
+            "y": self.kf.get_position()[1],
+            "track_id": self.id
+        })
 
         vx, vy = self.kf.get_velocity()
         self.velocity_history.append({
@@ -60,6 +69,18 @@ def create_local_projector(origin_lat, origin_lon):
 
     return to_local_meters, to_global_degrees
 
+def get_state_history_df(tracks, to_global_degrees):
+    records = []
+    for track in tracks:
+        for s in track.state_history:
+            lat, lon = to_global_degrees(s["x"], s["y"])
+            records.append({
+                "time": s["time"],
+                "lat": lat,
+                "lon": lon,
+                "track_id": track.id
+            })
+    return pd.DataFrame(records)
 
 # Main function to call
 def assign_basic_tracks(df, time_window_sec=30, dist_threshold=50, min_points=5):
